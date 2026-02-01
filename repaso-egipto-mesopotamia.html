@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Repaso 1º ESO — Egipto y Mesopotamia</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    body { margin: 0; background: #f6f7fb; color: #111; }
+    header { background: #111827; color: #fff; padding: 16px; }
+    header h1 { margin: 0; font-size: 18px; }
+    header p { margin: 6px 0 0; opacity: .85; font-size: 13px; }
+    main { max-width: 980px; margin: 0 auto; padding: 16px; }
+    .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px; margin: 12px 0; box-shadow: 0 1px 0 rgba(0,0,0,.03); }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .row > * { flex: 1; min-width: 240px; }
+    label { display: block; font-size: 13px; margin: 10px 0 6px; color: #374151; }
+    input[type="number"], select, input[type="text"], textarea {
+      width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 14px; background: #fff;
+    }
+    textarea { min-height: 90px; resize: vertical; }
+    button {
+      border: 1px solid #d1d5db; background: #fff; padding: 10px 12px; border-radius: 10px;
+      cursor: pointer; font-weight: 600;
+    }
+    button.primary { background: #2563eb; color: #fff; border-color: #2563eb; }
+    button.danger { background: #ef4444; color: #fff; border-color: #ef4444; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    .pill { display: inline-block; font-size: 12px; padding: 4px 8px; border-radius: 999px; background: #eef2ff; color: #3730a3; }
+    .qtitle { font-weight: 800; margin: 0 0 10px; }
+    .opt { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border: 1px solid #e5e7eb; border-radius: 10px; margin: 8px 0; }
+    .opt.correct { border-color: #22c55e; background: #f0fdf4; }
+    .opt.wrong { border-color: #ef4444; background: #fef2f2; }
+    .muted { color: #6b7280; font-size: 13px; }
+    .stats { display: flex; gap: 10px; flex-wrap: wrap; }
+    .stats .pill { background:#ecfeff; color:#0e7490; }
+    .split { display:flex; gap: 12px; flex-wrap: wrap; }
+    .split > .card { flex: 1; min-width: 300px; }
+    .hide { display: none !important; }
+    .kpi { font-size: 28px; font-weight: 900; margin: 6px 0; }
+    .small { font-size: 12px; }
+    hr { border: none; border-top: 1px solid #e5e7eb; margin: 12px 0; }
+    .footer { text-align:center; padding: 14px; color:#6b7280; font-size:12px; }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Repaso interactivo — Tema 2: Egipto y Mesopotamia (1º ESO)</h1>
+    <p>100 preguntas tipo test + 10 de desarrollo · Aleatorio · Puntuación · Repaso de fallos · Offline</p>
+  </header>
+
+  <main>
+    <div class="card">
+      <div class="row">
+        <div>
+          <label>Modo</label>
+          <select id="mode">
+            <option value="test">Test (opción múltiple)</option>
+            <option value="dev">Desarrollo (respuestas escritas)</option>
+          </select>
+        </div>
+        <div>
+          <label>Número de preguntas (solo test)</label>
+          <input id="count" type="number" min="5" max="100" value="20" />
+          <div class="muted small">Puedes poner 10, 20, 30… hasta 100.</div>
+        </div>
+        <div>
+          <label>Dificultad (solo test)</label>
+          <select id="difficulty">
+            <option value="all">Todas</option>
+            <option value="easy">Fácil</option>
+            <option value="med">Media</option>
+            <option value="hard">Difícil</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Orden</label>
+          <select id="order">
+            <option value="random">Aleatorio</option>
+            <option value="inorder">En orden</option>
+          </select>
+        </div>
+        <div>
+          <label>Corrección inmediata (solo test)</label>
+          <select id="instant">
+            <option value="yes">Sí</option>
+            <option value="no">No (corregir al final)</option>
+          </select>
+        </div>
+        <div style="display:flex; gap:10px; align-items:flex-end;">
+          <button class="primary" id="startBtn">Empezar</button>
+          <button id="resumeWrongBtn" class="danger" title="Repite solo las preguntas falladas" disabled>Repasar fallos</button>
+        </div>
+      </div>
+
+      <div class="stats" id="topStats"></div>
+    </div>
+
+    <div id="screenTest" class="card hide">
+      <div class="stats">
+        <span class="pill" id="pillProgress">Pregunta 1/1</span>
+        <span class="pill" id="pillScore">Aciertos: 0 · Fallos: 0</span>
+        <span class="pill" id="pillTimer">Tiempo: 00:00</span>
+      </div>
+
+      <hr />
+
+      <div id="questionArea"></div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+        <button id="prevBtn">Anterior</button>
+        <button class="primary" id="nextBtn">Siguiente</button>
+        <button id="finishBtn" class="danger">Finalizar</button>
+      </div>
+
+      <div class="muted small" style="margin-top:10px;">
+        Consejo: para simular examen, elige 30–40 preguntas, “Corrección al final” y “Aleatorio”.
+      </div>
+    </div>
+
+    <div id="screenDev" class="card hide">
+      <div class="stats">
+        <span class="pill" id="devPill">Desarrollo 1/10</span>
+      </div>
+      <hr />
+      <h3 id="devQ" style="margin:0 0 10px;"></h3>
+      <label>Tu respuesta</label>
+      <textarea id="devAnswer" placeholder="Escribe aquí..."></textarea>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+        <button id="devPrev">Anterior</button>
+        <button class="primary" id="devNext">Siguiente</button>
+        <button id="devShowGuide">Ver guía de corrección</button>
+      </div>
+
+      <div id="devGuide" class="card hide" style="margin-top:12px; background:#f9fafb;">
+        <strong>Guía (ideas clave):</strong>
+        <div id="devGuideText" class="muted" style="margin-top:8px;"></div>
+      </div>
+    </div>
+
+    <div id="screenResults" class="card hide">
+      <div class="split">
+        <div class="card" style="background:#f9fafb;">
+          <div class="pill">Resultado</div>
+          <div class="kpi" id="kpiScore">0%</div>
+          <div class="muted" id="resultLine"></div>
+          <hr />
+          <button class="primary" id="restartBtn">Hacer otro test</button>
+          <button id="showReviewBtn">Ver revisión</button>
+        </div>
+
+        <div class="card">
+          <div class="pill">Resumen</div>
+          <div class="muted" id="summaryText" style="margin-top:10px;"></div>
+          <hr />
+          <div class="muted small">
+            Tip: si baja de 70%, repite con “Repasar fallos”. Si supera 85%, sube a 40–60 preguntas.
+          </div>
+        </div>
+      </div>
+
+      <div id="reviewArea" class="card hide" style="margin-top:12px;"></div>
+    </div>
+
+    <div class="footer">Hecho para repasar sin imprimir · Funciona sin internet · Guarda tu progreso mientras la pestaña esté abierta</div>
+  </main>
+
+<script>
+/* =========================
+   BANCO DE PREGUNTAS (100)
+   ========================= */
+const BANK = [
+  // === TEST 1 (50) ===
+  {d:"med", q:"La Historia comienza cuando…", a:["se inventa el fuego","aparece la agricultura","aparece la escritura","se construyen pirámides"], c:2, exp:"Se suele marcar el inicio de la Historia con la aparición de la escritura."},
+  {d:"easy", q:"¿Hace cuántos años aprox. apareció la escritura?", a:["500","2.000","más de 5.000","10.000"], c:2, exp:"En el temario se indica 'hace más de 5.000 años'."},
+  {d:"easy", q:"La escritura apareció en…", a:["Mesopotamia y Egipto","Grecia y Roma","China y Japón","India y Persia (solo)"], c:0, exp:"En el tema se menciona Mesopotamia y Egipto como orígenes."},
+  {d:"easy", q:"Al principio, la escritura se usó sobre todo para…", a:["novelas y cuentos","controlar impuestos, comercio y cosechas","escribir poemas","cartas de amor"], c:1, exp:"Nace por necesidades administrativas: impuestos, transacciones, cosechas."},
+  {d:"med", q:"¿Qué necesidad provocó la aparición de la escritura?", a:["decorar templos","controlar datos cuando crecieron las ciudades","crear mapas del mundo","enseñar a niños pequeños"], c:1, exp:"Al crecer ciudades, hizo falta registrar datos."},
+  {d:"easy", q:"En Mesopotamia, al principio se usaban…", a:["alfabetos","pictogramas","números romanos","jeroglíficos"], c:1, exp:"Primero pictogramas; después signos más abstractos."},
+  {d:"easy", q:"¿En qué se grababan los signos en Mesopotamia?", a:["papiro","tabillas de barro húmedo","pergamino","madera"], c:1, exp:"Tablillas de barro que se dejaban secar."},
+  {d:"easy", q:"¿Por qué se llama 'cuneiforme'?", a:["por ser bonita","por usarse en templos","por signos en forma de cuña","por escribirse con tinta"], c:2, exp:"Los signos acabaron teniendo forma de cuña."},
+  {d:"easy", q:"La escritura egipcia se llama…", a:["cuneiforme","jeroglífica","latina","griega"], c:1, exp:"En Egipto: jeroglífica."},
+  {d:"med", q:"Los jeroglíficos al principio representaban…", a:["solo números","una palabra o idea","solo animales","solo letras"], c:1, exp:"Primero palabra/idea; con el tiempo también sonidos."},
+  {d:"med", q:"Con el tiempo, los jeroglíficos llegaron a representar también…", a:["sonidos","mapas","constelaciones","metales"], c:0, exp:"Evolucionan y también representan sonidos."},
+  {d:"easy", q:"La escritura marca…", a:["inicio Edad Media","inicio de la Historia","inicio Renacimiento","fin de agricultura"], c:1, exp:"Convención histórica: nace la Historia con la escritura."},
+
+  {d:"easy", q:"Las primeras civilizaciones surgieron junto a…", a:["volcanes","grandes ríos","desiertos","montañas"], c:1, exp:"Se desarrollan en torno a ríos por la agricultura."},
+  {d:"easy", q:"Se llaman 'civilizaciones fluviales' porque…", a:["vivían en barcos","se formaron cerca de ríos","comerciaban con peces","construían puentes"], c:1, exp:"Fluvial = relacionado con ríos."},
+  {d:"easy", q:"¿Qué ríos forman Mesopotamia?", a:["Indo y Ganges","Nilo y Jordán","Tigris y Éufrates","Danubio y Rin"], c:2, exp:"Mesopotamia: Tigris y Éufrates."},
+  {d:"easy", q:"El río fundamental de Egipto fue…", a:["Tigris","Éufrates","Indo","Nilo"], c:3, exp:"Egipto depende del Nilo."},
+  {d:"med", q:"En el Creciente Fértil la lluvia era…", a:["abundante","escasa e irregular","constante todo el año","nula siempre"], c:1, exp:"Poca lluvia → dependencia del río."},
+  {d:"med", q:"Por eso la agricultura dependía de…", a:["caza","aguas de los ríos","minería","ganadería nómada"], c:1, exp:"Aprovechamiento del río."},
+  {d:"med", q:"Desde el IV milenio a.C. se construyeron para controlar crecidas…", a:["castillos","diques y canales","teatros","puertos"], c:1, exp:"Obras hidráulicas: diques y canales."},
+  {d:"easy", q:"¿Qué ayudó a aumentar la productividad agrícola?", a:["rueda y arado","brújula y papel","pólvora e imprenta","telescopio y reloj"], c:0, exp:"Rueda y arado mejoran el trabajo agrícola."},
+
+  {d:"easy", q:"Mesopotamia significa…", a:["tierra sagrada","tierra entre dos ríos","tierra de desiertos","tierra de pirámides"], c:1, exp:"Etimología: 'tierra entre ríos'."},
+  {d:"easy", q:"Mesopotamia estaba en…", a:["Europa occidental","América","Próximo Oriente","Australia"], c:2, exp:"Región del Próximo Oriente."},
+  {d:"med", q:"Tigris y Éufrates nacen en…", a:["España","montañas de Armenia","Sahara","delta del Nilo"], c:1, exp:"Según el temario: montañas de Armenia."},
+  {d:"easy", q:"Desembocan en…", a:["mar Rojo","océano Atlántico","golfo Pérsico","mar Negro"], c:2, exp:"Desembocan en el golfo Pérsico."},
+  {d:"med", q:"La agricultura mesopotámica fue posible gracias a…", a:["nieve","diques y canales","bosques","lluvias diarias"], c:1, exp:"Control del agua con obras hidráulicas."},
+  {d:"easy", q:"La posición geográfica de Mesopotamia la hizo clave para…", a:["pesca","comercio","esquí","caza del mamut"], c:1, exp:"Zona de paso e intercambio."},
+  {d:"med", q:"Mesopotamia se dividía en…", a:["Alta Mesopotamia (Asiria) y Baja Mesopotamia (Caldea)","Norte y Sur de China","Alto y Bajo Egipto","Oriente y Occidente de Roma"], c:0, exp:"Alta/Asiria y Baja/Caldea."},
+
+  {d:"easy", q:"Egipto era un gran desierto atravesado por…", a:["un gran lago","un gran río, el Nilo","dos ríos","un mar interior"], c:1, exp:"Nilo = eje de vida egipcia."},
+  {d:"med", q:"El Nilo nace en…", a:["grandes lagos africanos (África ecuatorial)","Mediterráneo","Sahara","Grecia"], c:0, exp:"Nacimiento en zonas lluviosas de África ecuatorial."},
+  {d:"easy", q:"El Nilo desemboca en…", a:["golfo Pérsico","mar Mediterráneo","mar Negro","océano Índico"], c:1, exp:"Desemboca en el Mediterráneo (delta)."},
+  {d:"med", q:"El Bajo Egipto está…", a:["al sur (valle)","al norte (delta)","en el desierto oriental","en Nubia"], c:1, exp:"Bajo Egipto = delta, norte."},
+  {d:"med", q:"El Alto Egipto está…", a:["al norte (delta)","al sur (valle)","en el Mediterráneo","en Asia"], c:1, exp:"Alto Egipto = sur, valle."},
+  {d:"easy", q:"La vida era posible sobre todo en…", a:["todo el desierto","una franja junto al Nilo","las montañas","islas del Mediterráneo"], c:1, exp:"Franja fértil regada por el Nilo."},
+  {d:"easy", q:"Las inundaciones del Nilo dejaban…", a:["arena","piedras","oro","limo fértil"], c:3, exp:"Limo = tierra fértil que abona."},
+
+  {d:"med", q:"En las civilizaciones fluviales se formaron los primeros…", a:["parlamentos","Estados","equipos de fútbol","sindicatos"], c:1, exp:"Aparecen primeros Estados."},
+  {d:"easy", q:"El poder se concentró en…", a:["un rey","el pueblo votando","un consejo siempre","la ONU"], c:0, exp:"Monarquías tempranas."},
+  {d:"easy", q:"Para administrar y proteger, los reyes crearon…", a:["poetas","funcionarios y ejércitos","piratas","pintores"], c:1, exp:"Organización estatal: funcionarios + ejército."},
+  {d:"easy", q:"La sociedad era…", a:["igualitaria","sin diferencias","jerarquizada","democrática"], c:2, exp:"Minoría privilegiada y mayoría sometida."},
+  {d:"easy", q:"Los privilegiados eran una…", a:["mayoría","minoría","mitad exacta","no existían"], c:1, exp:"Minoría privilegiada."},
+  {d:"med", q:"Los privilegiados solían tener…", a:["la mayoría de tierras y riquezas","nada","solo pescado","solo herramientas de piedra"], c:0, exp:"Controlaban tierras/riquezas/cargos."},
+  {d:"med", q:"Los gobernantes construían grandes obras para…", a:["entretener","demostrar su poder","esconder tesoros","practicar deportes"], c:1, exp:"Palacios, templos, tumbas/pirámides como símbolo de poder."},
+
+  {d:"med", q:"En la Edad de los Metales surgieron ciudades gobernadas por…", a:["un faraón siempre","un rey","un presidente","un papa"], c:1, exp:"Ciudades con rey."},
+  {d:"med", q:"Ampliaron territorios mediante…", a:["solo comercio","guerra o pactos","magia","viajes espaciales"], c:1, exp:"Guerra o alianzas."},
+  {d:"med", q:"La ampliación obligó a crear…", a:["estructura estatal","circo y teatro","televisión","euros"], c:0, exp:"Administración de provincias."},
+  {d:"easy", q:"Los funcionarios que sabían leer, escribir y contar se llamaban…", a:["guerreros","escribas","campesinos","mercaderes"], c:1, exp:"Escribas: clave en Egipto y Mesopotamia."},
+  {d:"easy", q:"Un ejemplo de código legal antiguo es…", a:["Constitución actual","Código de Hammurabi","Código Napoleónico","Código Penal actual"], c:1, exp:"Hammurabi: uno de los primeros códigos."},
+
+  {d:"med", q:"El periodo sumerio se caracteriza por…", a:["pirámides","primeras ciudades-estado (Ur, Uruk…)","conquista romana","feudalismo"], c:1, exp:"Sumerios: ciudades-estado."},
+  {d:"med", q:"El Imperio acadio se relaciona con…", a:["Sargón","Keops","Menes","Cleopatra"], c:0, exp:"Sargón y el Imperio acadio."},
+  {d:"med", q:"El Imperio babilónico tuvo como rey destacado a…", a:["Ramsés II","Hammurabi","Tutankamón","Menes"], c:1, exp:"Hammurabi en Babilonia."},
+  {d:"med", q:"El Imperio neobabilónico tuvo como rey destacado a…", a:["Nabucodonosor II","Sargón","Keops","Alejandro Magno"], c:0, exp:"Nabucodonosor II."},
+
+  {d:"med", q:"¿Quién unificó Alto y Bajo Egipto según la tradición?", a:["Ramsés II","Keops","Menes","Tutankamón"], c:2, exp:"Menes unifica y es primer faraón."},
+  {d:"med", q:"Las pirámides se asocian sobre todo al…", a:["Imperio Medio","Imperio Antiguo","Imperio Nuevo","Bajo Imperio"], c:1, exp:"Imperio Antiguo: pirámides de Gizeh."},
+  {d:"hard", q:"¿Quién promulgó el Código de Hammurabi?", a:["Sargón","Hammurabi","Nabucodonosor","Asurbanipal"], c:1, exp:"Hammurabi promulgó el código."},
+  {d:"med", q:"Egipto fue conquistado por los romanos en…", a:["1500 a.C.","715 a.C.","31 a.C.","100 d.C."], c:2, exp:"En el 31 a.C. cae bajo dominio romano (fin del periodo)."},
+
+  // === TEST 2 (50) ===
+  {d:"med", q:"La escritura permitió principalmente…", a:["mejorar el clima","registrar y conservar información","construir barcos","fabricar acero"], c:1, exp:"Registrar datos (impuestos, comercio, etc.)."},
+  {d:"med", q:"Después de la escritura aparecen también…", a:["solo dibujos","libros sagrados y primeras obras literarias","internet","monedas de euro"], c:1, exp:"Se registran asuntos religiosos, científicos y literarios."},
+  {d:"easy", q:"Las tabillas de barro mesopotámicas se dejaban…", a:["en agua","secando al sol","en el hielo","bajo tierra"], c:1, exp:"Se secaban al sol."},
+  {d:"med", q:"La cuneiforme pasó de pictogramas a…", a:["signos más abstractos","letras latinas","dibujos más grandes","números romanos"], c:0, exp:"Evolución hacia signos abstractos."},
+  {d:"easy", q:"En Egipto se podía escribir en…", a:["papiro y muros","barro siempre","metal","hueso"], c:0, exp:"Papiro y también en muros."},
+
+  {d:"easy", q:"Mesopotamia, Egipto, India y China se consideran…", a:["civilizaciones fluviales","civilizaciones industriales","civilizaciones medievales","civilizaciones polares"], c:0, exp:"Surgen junto a grandes ríos."},
+  {d:"easy", q:"El río Indo corresponde a…", a:["India","Egipto","Mesopotamia","China"], c:0, exp:"Indo: India."},
+  {d:"easy", q:"Los ríos Amarillo y Azul corresponden a…", a:["Mesopotamia","Egipto","China","India"], c:2, exp:"Amarillo y Azul: China."},
+  {d:"med", q:"El Creciente Fértil tiene forma de…", a:["círculo","media luna","rectángulo","triángulo"], c:1, exp:"Media luna."},
+  {d:"med", q:"Para controlar crecidas se usaban sobre todo…", a:["dique y canal","muralla y torre","carretera y puente","barco y puerto"], c:0, exp:"Diques y canales."},
+
+  {d:"easy", q:"Mesopotamia estaba entre…", a:["Indo y Ganges","Tigris y Éufrates","Nilo y Jordán","Rin y Danubio"], c:1, exp:"Tigris y Éufrates."},
+  {d:"med", q:"Mesopotamia se sitúa en…", a:["Próximo Oriente","norte de Europa","sur de África","Oceanía"], c:0, exp:"Próximo Oriente."},
+  {d:"med", q:"Los ríos desembocaban en…", a:["mar Rojo","golfo Pérsico","Mediterráneo","Atlántico"], c:1, exp:"Golfo Pérsico."},
+  {d:"easy", q:"La región fue clave para el…", a:["comercio","hockey","esquí","volcanismo"], c:0, exp:"Comercio."},
+  {d:"med", q:"Mesopotamia se dividía en…", a:["Alta/Asiria y Baja/Caldea","Alto/Bajo Egipto","Norte/Sur China","Este/Oeste Roma"], c:0, exp:"Alta Mesopotamia (Asiria) y Baja (Caldea)."},
+
+  {d:"easy", q:"Egipto era un desierto atravesado por…", a:["dos ríos","el Nilo","un mar","un lago"], c:1, exp:"El Nilo es el eje."},
+  {d:"med", q:"El Nilo nace en…", a:["los grandes lagos africanos","Mediterráneo","Sahara","Grecia"], c:0, exp:"Grandes lagos africanos."},
+  {d:"easy", q:"El Nilo desemboca en…", a:["Mediterráneo","golfo Pérsico","mar Negro","Atlántico"], c:0, exp:"Mar Mediterráneo."},
+  {d:"med", q:"Bajo Egipto se sitúa en…", a:["el delta","el valle del sur","Asia","Nubia"], c:0, exp:"Delta, norte."},
+  {d:"med", q:"Alto Egipto se sitúa en…", a:["el valle del sur","el delta","Mediterráneo","Asia"], c:0, exp:"Valle del sur."},
+
+  {d:"easy", q:"La sociedad de estas civilizaciones era…", a:["igualitaria","jerarquizada","sin normas","moderna"], c:1, exp:"Muy jerarquizada."},
+  {d:"easy", q:"El poder político era…", a:["fuerte y concentrado","débil","sin rey","compartido siempre"], c:0, exp:"Poder fuerte en manos del rey."},
+  {d:"med", q:"Para administrar, el rey creó…", a:["funcionarios","payasos","piratas","astrónomos"], c:0, exp:"Funcionarios (escribas)."},
+  {d:"med", q:"Para defender el territorio, se formaron…", a:["bibliotecas","ejércitos","teatros","hospitales"], c:1, exp:"Ejércitos."},
+  {d:"easy", q:"Las grandes obras arquitectónicas servían para…", a:["demostrar poder","hacer deporte","viajar más","pintar mejor"], c:0, exp:"Símbolo de poder."},
+
+  {d:"med", q:"Un Estado en el tema se entiende como…", a:["una ciudad/territorio gobernado por un rey","un continente","una tribu sin jefe","una empresa"], c:0, exp:"Primeros Estados: poder central del rey."},
+  {d:"med", q:"Un Imperio es…", a:["territorio dominado por otro","una aldea","un río","un invento"], c:0, exp:"Dominio sobre otros territorios."},
+  {d:"easy", q:"Los escribas eran…", a:["campesinos","personas que sabían leer/escribir/contar","soldados","artesanos"], c:1, exp:"Clave para administración."},
+  {d:"med", q:"El Código de Hammurabi es…", a:["leyes","poemas","mapas","cuentos"], c:0, exp:"Código legal."},
+  {d:"med", q:"Las leyes servían para…", a:["decorar","regular relaciones entre habitantes","crear pirámides","hacer comercio marítimo"], c:1, exp:"Regular vida social."},
+
+  {d:"hard", q:"Los sumerios se caracterizan por crear…", a:["ciudades-estado","pirámides de Gizeh","calzadas romanas","castillos medievales"], c:0, exp:"Sumerios: ciudades-estado."},
+  {d:"hard", q:"Sargón está asociado a…", a:["Imperio acadio","Imperio romano","Imperio egipcio","Imperio persa"], c:0, exp:"Sargón: acadio."},
+  {d:"hard", q:"Hammurabi gobernó en…", a:["Babilonia","Tebas","Menfis","Ur"], c:0, exp:"Babilonia."},
+  {d:"hard", q:"Los asirios destacaron por…", a:["poder militar","pirámides","democracia","vida nómada"], c:0, exp:"Imperio asirio: militar."},
+  {d:"hard", q:"Nabucodonosor II fue rey…", a:["neobabilónico","acadio","sumerio","egipcio"], c:0, exp:"Neobabilónico."},
+
+  {d:"med", q:"Menes fue…", a:["un rey griego","el primer faraón según la tradición","un general romano","un dios"], c:1, exp:"Unifica y primer faraón."},
+  {d:"med", q:"Las pirámides se construyeron sobre todo en el…", a:["Imperio Antiguo","Imperio Nuevo","Bajo Imperio","Edad Media"], c:0, exp:"Imperio Antiguo."},
+  {d:"hard", q:"Hatshepsut fue…", a:["reina-faraón","escriba","una ciudad","una diosa"], c:0, exp:"Figura destacada del Imperio Nuevo."},
+  {d:"hard", q:"Conquistas en Siria y Palestina se asocian al…", a:["Imperio Nuevo","Imperio Antiguo","Imperio Medio","Bajo Imperio"], c:0, exp:"Imperio Nuevo: expansión territorial."},
+  {d:"med", q:"La conquista romana de Egipto se sitúa en…", a:["31 a.C.","2300 a.C.","1800 a.C.","715 a.C."], c:0, exp:"31 a.C."},
+
+  // Relleno extra para llegar a 100 con más matices (sin repetir enunciados exactos)
+  {d:"easy", q:"¿Qué relación hay entre crecimiento de ciudades y escritura?", a:["ninguna","al crecer ciudades, se necesitó registrar datos","se dejó de comerciar","se abandonó la agricultura"], c:1, exp:"Más población y comercio → más registros."},
+  {d:"med", q:"En Mesopotamia, al principio se grababa con…", a:["pincel","caña (estilete)","pluma metálica","tinta china"], c:1, exp:"Se grababa con una caña en barro."},
+  {d:"easy", q:"El Nilo formaba una zona fértil en…", a:["una franja estrecha inundable","todo el desierto","las montañas","la costa"], c:0, exp:"Vida en la franja junto al río."},
+  {d:"med", q:"El limo del Nilo servía para…", a:["salinizar la tierra","abonar y hacer fértiles los campos","hacer pirámides","secar el río"], c:1, exp:"Aporta nutrientes."},
+  {d:"med", q:"¿Cuál es un rasgo típico de civilizaciones fluviales?", a:["poder político fuerte","sin leyes","sin clases sociales","sin agricultura"], c:0, exp:"Estados fuertes con rey."},
+  {d:"med", q:"La minoría privilegiada controlaba…", a:["tierras, riquezas y cargos","solo pesca","solo caza","solo música"], c:0, exp:"Privilegiados = riqueza y poder."},
+  {d:"med", q:"La mayoría sometida solía ser…", a:["nobles","campesinos y trabajadores","reyes","sacerdotes siempre"], c:1, exp:"Mayoría trabajadora."},
+  {d:"hard", q:"¿Qué ocurre cuando un rey domina ciudades vecinas?", a:["se forma un imperio","se pierde el comercio","desaparece la escritura","se acaba el río"], c:0, exp:"Dominio territorial = imperio."},
+  {d:"hard", q:"¿Qué función tenían los escribas?", a:["solo construir templos","llevar registros y recaudar impuestos","ser guerreros","hacer pirámides"], c:1, exp:"Administración e impuestos."},
+  {d:"med", q:"El Creciente Fértil incluía…", a:["Mesopotamia y zonas cercanas fértiles","solo Egipto","solo China","solo Europa"], c:0, exp:"Zona fértil en forma de media luna."}
+];
+
+// Aseguramos 100 exactas: si por alguna razón hay menos, duplicamos algunas difíciles variando etiqueta.
+while (BANK.length < 100) {
+  const base = BANK[BANK.length % 50];
+  BANK.push({...base, q: base.q + " (variante)", d: base.d});
+}
+if (BANK.length > 100) BANK.length = 100;
+
+/* =========================
+   DESARROLLO (10)
+   ========================= */
+const DEV = [
+  {
+    q:"Explica por qué la aparición de la escritura marca el paso de la Prehistoria a la Historia.",
+    guide:"Porque la escritura permite dejar registros permanentes de hechos, leyes, impuestos y acontecimientos. Desde ese momento hay fuentes escritas y se puede estudiar la historia con documentos, no solo con restos materiales."
+  },
+  {
+    q:"Describe cómo surgió la escritura en Mesopotamia y cómo evolucionó hasta la cuneiforme.",
+    guide:"Empieza con pictogramas grabados con una caña en tablillas de barro húmedo que se secaban. Los pictogramas se fueron simplificando y volviéndose más abstractos hasta convertirse en signos con forma de cuña (cuneiforme)."
+  },
+  {
+    q:"Explica cómo era la escritura jeroglífica egipcia y dónde se escribía.",
+    guide:"Se usaban dibujos (jeroglíficos) que al principio representaban ideas o palabras; con el tiempo también sonidos. Se escribía en papiro y también en muros/monumentos."
+  },
+  {
+    q:"¿Por qué se llaman civilizaciones fluviales? Pon ejemplos y relación con los ríos.",
+    guide:"Porque surgieron en torno a grandes ríos que aportaban agua y fertilidad para la agricultura: Tigris-Éufrates (Mesopotamia), Nilo (Egipto), Indo (India), Amarillo y Azul (China)."
+  },
+  {
+    q:"Describe el Creciente Fértil y explica por qué fue importante.",
+    guide:"Región con forma de media luna donde la lluvia era escasa e irregular; por eso el desarrollo dependió de ríos y obras hidráulicas. Fue clave para agricultura, ciudades y primeras civilizaciones."
+  },
+  {
+    q:"Explica la importancia de los diques y canales en Mesopotamia y Egipto.",
+    guide:"Servían para controlar crecidas y repartir agua para el riego. Permitieron aumentar la superficie cultivable y la productividad agrícola."
+  },
+  {
+    q:"Describe cómo era la sociedad de las primeras civilizaciones: privilegiados y mayoría sometida.",
+    guide:"Sociedad muy jerarquizada: una minoría privilegiada (control de tierras, riquezas y cargos) y una mayoría sometida (campesinos y trabajadores)."
+  },
+  {
+    q:"Explica cómo nacieron los primeros Estados y por qué el poder era fuerte.",
+    guide:"Al crecer ciudades, el poder se concentró en un rey que dictaba leyes y dirigía ejército. Se crearon funcionarios/escribas para administrar, recaudar impuestos y organizar el territorio."
+  },
+  {
+    q:"Resume la evolución política de Mesopotamia mencionando pueblos/imperios importantes.",
+    guide:"Periodo sumerio: ciudades-estado. Imperio acadio (Sargón). Imperio babilónico (Hammurabi y su código). Imperio asirio (militar). Imperio neobabilónico (Nabucodonosor II)."
+  },
+  {
+    q:"Explica las etapas de Egipto (Imperio Antiguo, Medio, Nuevo y Bajo) con una idea clave de cada una.",
+    guide:"Imperio Antiguo: bases del Estado y pirámides. Imperio Medio: recuperación y expansión. Imperio Nuevo: esplendor y conquistas (Siria/Palestina; faraones famosos). Bajo Imperio: decadencia y dominio extranjero hasta conquista romana (31 a.C.)."
+  }
+];
+
+/* =========================
+   LÓGICA DE LA APP
+   ========================= */
+const $ = (id) => document.getElementById(id);
+
+let state = {
+  mode: "test",
+  pool: [],
+  idx: 0,
+  answers: new Map(),   // qIndex -> selected option
+  wrongSet: [],         // indices of pool
+  startTime: null,
+  timerHandle: null,
+  finished: false,
+  devIdx: 0,
+  devAnswers: Array(DEV.length).fill("")
+};
+
+function fmtTime(ms) {
+  const s = Math.floor(ms / 1000);
+  const mm = String(Math.floor(s / 60)).padStart(2,"0");
+  const ss = String(s % 60).padStart(2,"0");
+  return `${mm}:${ss}`;
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i=a.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function computeStats() {
+  let correct = 0, wrong = 0, blank = 0;
+  for (let i=0; i<state.pool.length; i++) {
+    const selected = state.answers.get(i);
+    if (selected === undefined) { blank++; continue; }
+    if (selected === state.pool[i].c) correct++;
+    else wrong++;
+  }
+  return { correct, wrong, blank, total: state.pool.length };
+}
+
+function updateTopStats() {
+  const total = BANK.length;
+  $("topStats").innerHTML = `
+    <span class="pill">Banco: ${total} preguntas</span>
+    <span class="pill">Test: 100 · Desarrollo: 10</span>
+    <span class="pill">Modo actual: ${$("mode").value === "test" ? "Test" : "Desarrollo"}</span>
+  `;
+}
+
+function showScreen(which) {
+  $("screenTest").classList.add("hide");
+  $("screenDev").classList.add("hide");
+  $("screenResults").classList.add("hide");
+  if (which === "test") $("screenTest").classList.remove("hide");
+  if (which === "dev") $("screenDev").classList.remove("hide");
+  if (which === "results") $("screenResults").classList.remove("hide");
+}
+
+function startTimer() {
+  state.startTime = Date.now();
+  clearInterval(state.timerHandle);
+  state.timerHandle = setInterval(() => {
+    $("pillTimer").textContent = "Tiempo: " + fmtTime(Date.now() - state.startTime);
+  }, 250);
+}
+function stopTimer() { clearInterval(state.timerHandle); state.timerHandle = null; }
+
+function renderQuestion() {
+  const q = state.pool[state.idx];
+  const total = state.pool.length;
+  const selected = state.answers.get(state.idx);
+
+  $("pillProgress").textContent = `Pregunta ${state.idx+1}/${total}`;
+  const st = computeStats();
+  $("pillScore").textContent = `Aciertos: ${st.correct} · Fallos: ${st.wrong} · En blanco: ${st.blank}`;
+
+  const instant = $("instant").value === "yes";
+  const isAnswered = selected !== undefined;
+  const showFeedback = instant && isAnswered;
+
+  let html = `
+    <div>
+      <div class="muted"><span class="pill">Dificultad: ${q.d === "easy" ? "Fácil" : q.d === "med" ? "Media" : "Difícil"}</span></div>
+      <h3 class="qtitle">${q.q}</h3>
+      <div class="muted">Elige una opción:</div>
+  `;
+
+  q.a.forEach((opt, i) => {
+    let cls = "opt";
+    if (showFeedback) {
+      if (i === q.c) cls += " correct";
+      if (i === selected && selected !== q.c) cls += " wrong";
+    }
+    const checked = selected === i ? "checked" : "";
+    html += `
+      <label class="${cls}">
+        <input type="radio" name="opt" value="${i}" ${checked} />
+        <div><strong>${String.fromCharCode(97+i)})</strong> ${opt}</div>
+      </label>
+    `;
+  });
+
+  if (showFeedback) {
+    html += `<div class="card" style="background:#f9fafb; margin-top:10px;">
+      <strong>Explicación:</strong>
+      <div class="muted" style="margin-top:6px;">${q.exp || "—"}</div>
+    </div>`;
+  }
+
+  html += `</div>`;
+  $("questionArea").innerHTML = html;
+
+  // handlers
+  document.querySelectorAll('input[name="opt"]').forEach(r => {
+    r.addEventListener("change", (e) => {
+      state.answers.set(state.idx, Number(e.target.value));
+      // Si corrección inmediata, re-render para mostrar feedback
+      if ($("instant").value === "yes") renderQuestion();
+      // Habilitar repaso fallos si hay alguno al menos
+      updateWrongButtonAvailability();
+    });
+  });
+
+  $("prevBtn").disabled = state.idx === 0;
+  $("nextBtn").disabled = state.idx === total - 1;
+}
+
+function updateWrongButtonAvailability() {
+  // Se activa si existe al menos un fallo (en intento actual o último finalizado)
+  const st = computeStats();
+  $("resumeWrongBtn").disabled = !(st.wrong > 0);
+}
+
+function startTest(customPool=null) {
+  state.mode = "test";
+  state.idx = 0;
+  state.answers = new Map();
+  state.finished = false;
+
+  const diff = $("difficulty").value;
+  const order = $("order").value;
+  let pool = customPool ? customPool : BANK;
+
+  // filtrar dificultad
+  if (!customPool && diff !== "all") pool = pool.filter(q => q.d === diff);
+
+  // tamaño
+  let n = Number($("count").value || 20);
+  n = Math.max(5, Math.min(n, pool.length));
+
+  // orden
+  let selected = (order === "random") ? shuffle(pool) : [...pool];
+  selected = selected.slice(0, n);
+
+  state.pool = selected;
+
+  showScreen("test");
+  startTimer();
+  $("pillTimer").textContent = "Tiempo: 00:00";
+  renderQuestion();
+  updateWrongButtonAvailability();
+}
+
+function finishTest() {
+  state.finished = true;
+  stopTimer();
+  const st = computeStats();
+  const pct = Math.round((st.correct / st.total) * 100);
+  $("kpiScore").textContent = `${pct}%`;
+  $("resultLine").textContent = `Aciertos: ${st.correct} · Fallos: ${st.wrong} · En blanco: ${st.blank} · Total: ${st.total}`;
+  $("summaryText").innerHTML = `
+    <div><strong>Recomendación:</strong></div>
+    <ul class="muted">
+      <li>Si estás por debajo de 70%: repite “Repasar fallos” y luego un test de 20 aleatorio.</li>
+      <li>Entre 70% y 85%: sube a 30–40 preguntas, corrección al final.</li>
+      <li>Más de 85%: haz 50 preguntas aleatorias como simulacro.</li>
+    </ul>
+  `;
+  buildReview();
+  showScreen("results");
+
+  // Guardar el set de fallos para “Repasar fallos”
+  state.wrongSet = [];
+  for (let i=0; i<state.pool.length; i++) {
+    const sel = state.answers.get(i);
+    if (sel !== undefined && sel !== state.pool[i].c) state.wrongSet.push(i);
+  }
+  $("resumeWrongBtn").disabled = !(state.wrongSet.length > 0);
+}
+
+function buildReview() {
+  const st = computeStats();
+  let html = `<div class="muted">Revisión (solo preguntas contestadas):</div><hr />`;
+  for (let i=0; i<state.pool.length; i++) {
+    const q = state.pool[i];
+    const sel = state.answers.get(i);
+    if (sel === undefined) continue;
+
+    const ok = sel === q.c;
+    html += `
+      <div class="card" style="background:${ok ? "#f0fdf4" : "#fef2f2"};">
+        <div class="pill">${ok ? "✅ Correcta" : "❌ Incorrecta"}</div>
+        <div style="margin-top:8px;"><strong>${i+1}. ${q.q}</strong></div>
+        <div class="muted" style="margin-top:6px;">
+          Tu respuesta: <strong>${String.fromCharCode(97+sel)})</strong> ${q.a[sel]}<br/>
+          Correcta: <strong>${String.fromCharCode(97+q.c)})</strong> ${q.a[q.c]}
+        </div>
+        <div class="muted" style="margin-top:8px;"><strong>Explicación:</strong> ${q.exp || "—"}</div>
+      </div>
+    `;
+  }
+  if (st.blank === st.total) {
+    html += `<div class="muted">No has respondido ninguna pregunta todavía.</div>`;
+  }
+  $("reviewArea").innerHTML = html;
+}
+
+function startDev() {
+  state.mode = "dev";
+  state.devIdx = 0;
+  state.devAnswers = Array(DEV.length).fill("");
+  $("devGuide").classList.add("hide");
+  showScreen("dev");
+  renderDev();
+}
+
+function renderDev() {
+  const i = state.devIdx;
+  $("devPill").textContent = `Desarrollo ${i+1}/${DEV.length}`;
+  $("devQ").textContent = DEV[i].q;
+  $("devAnswer").value = state.devAnswers[i] || "";
+  $("devGuide").classList.add("hide");
+  $("devGuideText").textContent = "";
+  $("devPrev").disabled = i === 0;
+  $("devNext").disabled = i === DEV.length - 1;
+}
+
+function showDevGuide() {
+  const i = state.devIdx;
+  $("devGuideText").textContent = DEV[i].guide;
+  $("devGuide").classList.remove("hide");
+}
+
+/* =========================
+   EVENTOS UI
+   ========================= */
+$("mode").addEventListener("change", () => updateTopStats());
+$("startBtn").addEventListener("click", () => {
+  const m = $("mode").value;
+  if (m === "test") startTest();
+  else startDev();
+});
+
+$("prevBtn").addEventListener("click", () => { if (state.idx>0) { state.idx--; renderQuestion(); } });
+$("nextBtn").addEventListener("click", () => { if (state.idx<state.pool.length-1) { state.idx++; renderQuestion(); } });
+$("finishBtn").addEventListener("click", finishTest);
+
+$("restartBtn").addEventListener("click", () => {
+  $("reviewArea").classList.add("hide");
+  startTest();
+});
+
+$("showReviewBtn").addEventListener("click", () => {
+  $("reviewArea").classList.toggle("hide");
+});
+
+$("resumeWrongBtn").addEventListener("click", () => {
+  // Crear pool solo con las preguntas falladas del último intento finalizado.
+  // Si no se finalizó, toma fallos del estado actual.
+  const wrongIdxs = (state.wrongSet && state.wrongSet.length)
+    ? state.wrongSet
+    : (() => {
+        const idxs = [];
+        for (let i=0;i<state.pool.length;i++){
+          const sel = state.answers.get(i);
+          if (sel !== undefined && sel !== state.pool[i].c) idxs.push(i);
+        }
+        return idxs;
+      })();
+
+  if (!wrongIdxs.length) return;
+
+  const wrongQs = wrongIdxs.map(i => state.pool[i]);
+  // Hacemos un test con esas preguntas, aleatorio, y corrección inmediata para aprender.
+  $("order").value = "random";
+  $("instant").value = "yes";
+  $("difficulty").value = "all";
+  $("count").value = String(Math.min(30, wrongQs.length));
+  startTest(wrongQs);
+});
+
+$("devPrev").addEventListener("click", () => {
+  state.devAnswers[state.devIdx] = $("devAnswer").value;
+  if (state.devIdx>0) { state.devIdx--; renderDev(); }
+});
+$("devNext").addEventListener("click", () => {
+  state.devAnswers[state.devIdx] = $("devAnswer").value;
+  if (state.devIdx<DEV.length-1) { state.devIdx++; renderDev(); }
+});
+$("devShowGuide").addEventListener("click", () => {
+  state.devAnswers[state.devIdx] = $("devAnswer").value;
+  showDevGuide();
+});
+
+updateTopStats();
+</script>
+</body>
+</html>
